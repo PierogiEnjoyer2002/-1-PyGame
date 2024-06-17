@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.points = 0
         self.bonus_speed = False
         self.bonus_shield = False
-        self.bonus_double_demage = False
+        self.bonus_double_damage = False
         self.player_speed = 8
         self.bullet_speed = 12
 
@@ -60,3 +60,28 @@ class Player(pygame.sprite.Sprite):
             pygame.time.delay(200)
             self.level.set_of_meteors.empty()
             self.level.set_of_bonus.empty()
+
+    def shoot(self):
+        if len(self.level.set_of_bullets) < 10 + 6 * self.bonus_speed:
+            bl = Bullet(IMAGES['LASER2'], self.rect.centerx - 45, self.rect.centery, -(self.bullet_speed + 3 * self.bonus_speed))
+            br = Bullet(IMAGES['LASER2'], self.rect.centerx + 45, self.rect.centery, -(self.bullet_speed + 3 * self.bonus_speed))
+            if not pygame.sprite.groupcollide({bl, br}, self.level.set_of_bullets, False, False):
+                self.level.set_of_bullets.add(bl,br)
+                laser_musics.play()
+
+
+    def _move(self, image_list, speed_animation):
+        self.fire = image_list[self._count//speed_animation]
+        self._count = (self._count + 1) % (len(image_list) * speed_animation)
+
+    def get_event(self, key_pressed):
+        if key_pressed[pygame.K_LEFT]:
+            self.rect.move_ip([-(self.ship_speed + 3 * self.bonus_speed), 0])
+        if key_pressed[pygame.K_RIGHT]:
+            self.rect.move_ip([(self.ship_speed + 3 * self.bonus_speed), 0])
+        if key_pressed[pygame.K_UP]:
+            self.rect.move_ip([0, -(self.ship_speed + 3 * self.bonus_speed)])
+        if key_pressed[pygame.K_DOWN]:
+            self.rect.move_ip([0, (self.ship_speed + 3 * self.bonus_speed)])
+        if key_pressed[pygame.K_SPACE]:
+            self.shoot()
